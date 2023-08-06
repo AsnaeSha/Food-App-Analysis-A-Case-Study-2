@@ -1,20 +1,7 @@
--- windows function
-
--- use sql_hr;
--- select first_name,last_name,job_title,dept,sum(salary) over (partition by dept) as 'total salary' from employees
-
--- row number
--- select row_number() over(order by salary) as row_num,first_name,dept,salary from employees
-
--- get duplicate row
--- select employee_id,first_name,salary,dept, row_number() over(partition by dept order by dept) as duplicate_value from employees
-
--- rank fucntion
--- select dept,rank() over(order by dept) from employees
-
-
 
 -- zomato analytic
+
+
 -- how much each customer spend on zomato?
 
 -- select user_id,sum(price) from product
