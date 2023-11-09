@@ -1,68 +1,65 @@
-
 -- zomato analytic
-
 
 -- how much each customer spend on zomato?
 
--- select user_id,sum(price) from product
--- join sales on sales.product_id = product.product_id
--- group by user_id
+select user_id,sum(price) from product
+join sales on sales.product_id = product.product_id
+group by user_id
 
 -- how many days has each customer visited zomato?
 
--- select user_id,count(created_at) as visited_day from sales
--- group by user_id
+select user_id,count(created_at) as visited_day from sales
+group by user_id
 
 -- first product purchased by each customer?
--- select * from
--- (select *, rank() over(partition by user_id order by created_at) as rnk from sales)sales where rnk = 1
+select * from
+(select *, rank() over(partition by user_id order by created_at) as rnk from sales)sales where rnk = 1
 
 -- what is the most purchased item and how many time was it purchased by all customers?
 
--- select user_id,count(product_id) as no_of_times from sales where product_id =
--- (select product_id from sales
--- group by product_id
--- order by count(product_id) desc
--- limit 1)
--- group by user_id
--- order by user_id
+select user_id,count(product_id) as no_of_times from sales where product_id =
+(select product_id from sales
+group by product_id
+order by count(product_id) desc
+limit 1)
+group by user_id
+order by user_id
 
 -- which is the most popular item among each customer
 
--- select * from
--- (select *, rank() over(partition by user_id order by no_of_times desc) rnk from
--- (select user_id,product_id,count(product_id) no_of_times from sales
--- group by user_id,product_id) sales) sales
--- where rnk = 1
+select * from
+(select *, rank() over(partition by user_id order by no_of_times desc) rnk from
+(select user_id,product_id,count(product_id) no_of_times from sales
+group by user_id,product_id) sales) sales
+where rnk = 1
 
 -- which item was purchased first by customer after they become a gold member
 
--- select * from
--- (select *, rank() over(partition by user_id order by created_at) rnk from 
--- (select goldusers_signup.user_id,created_at,product_id,golduser_signup_date from goldusers_signup
--- inner join sales on goldusers_signup.user_id = sales.user_id
--- where created_at >= golduser_signup_date
--- ) sales) sales 
--- where rnk = 1
+select * from
+(select *, rank() over(partition by user_id order by created_at) rnk from 
+(select goldusers_signup.user_id,created_at,product_id,golduser_signup_date from goldusers_signup
+inner join sales on goldusers_signup.user_id = sales.user_id
+where created_at >= golduser_signup_date
+) sales) sales 
+where rnk = 1
 
 -- which item was purchased just before becoming the gold member
 
--- select * from 
--- (select *, rank() over(partition by user_id order by created_at desc) rnk from
--- (select sales.user_id,sales.created_at,sales.product_id,golduser_signup_date from sales
--- inner join goldusers_signup on sales.user_id = goldusers_signup.user_id
--- where golduser_signup_date >= created_at) sales ) sales
--- where rnk = 1
+select * from 
+(select *, rank() over(partition by user_id order by created_at desc) rnk from
+(select sales.user_id,sales.created_at,sales.product_id,golduser_signup_date from sales
+inner join goldusers_signup on sales.user_id = goldusers_signup.user_id
+where golduser_signup_date >= created_at) sales ) sales
+where rnk = 1
 
 -- what is the total order and amount spent by each customer before becoming the gold member
 
--- select user_id,count(user_id) as purchased_item, sum(price) as money_spent from
--- (select sales.user_id,created_at,product.product_id,price,golduser_signup_date from sales
--- join goldusers_signup on sales.user_id = goldusers_signup.user_id
--- join product on product.product_id= sales.product_id
--- where created_at <= golduser_signup_date) sales
--- group by user_id
-
+select user_id,count(user_id) as purchased_item, sum(price) as money_spent from
+(select sales.user_id,created_at,product.product_id,price,golduser_signup_date from sales
+join goldusers_signup on sales.user_id = goldusers_signup.user_id
+join product on product.product_id= sales.product_id
+where created_at <= golduser_signup_date) sales
+group by user_id
 
 -- if buying each products generates points eg 5rs = 2points  that means 1 point = 2.5rs zomato points and each products has different purchasing points for eg for p1 5rs = 1 poinrs 
 -- for p2 10 rs = 5 that means one ppint carring 2rs for p3 5rs = 1 points
