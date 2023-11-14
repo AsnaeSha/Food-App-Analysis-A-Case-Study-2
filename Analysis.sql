@@ -61,65 +61,30 @@ join product on product.product_id= sales.product_id
 where created_at <= golduser_signup_date) sales
 group by user_id
 
--- if buying each products generates points eg 5rs = 2points  that means 1 point = 2.5rs zomato points and each products has different purchasing points for eg for p1 5rs = 1 poinrs 
--- for p2 10 rs = 5 that means one ppint carring 2rs for p3 5rs = 1 points
-
--- calculate points collected by each customers and for which product most points have been collected till now
-
--- select user_id,round(sum(points) * 2.5,0) as total_point_earned from
--- (select user_id,product.product_id,sum(price) as amount,
--- case when product_name = 'p1' then sum(price)/5
--- when product_name = 'p2' then sum(price)/2
--- when product_name = 'p3' then sum(price)/5
--- else 0 
--- end as points
--- from product
--- join sales on sales.product_id = product.product_id
--- group by user_id,product_id
--- order by user_id
--- ) sales
--- group by user_id;
-
--- -- second part
--- select product_id,round(sum(points),0) as most_point_earned from
--- (select user_id,product.product_id,sum(price) as amount,
--- case when product_name = 'p1' then sum(price)/5
--- when product_name = 'p2' then sum(price)/2
--- when product_name = 'p3' then sum(price)/5
--- else 0 
--- end as points
--- from product
--- join sales on sales.product_id = product.product_id
--- group by user_id,product_id
--- order by user_id
--- ) sales
--- group by product_id
--- order by most_point_earned desc limit 1
-
 -- in the first one year after the customer joining the gold member(including their join date) irrespective of what the customer has puchased they earned 5 zomato points 
 -- for every 10rs spent so 1 zomato point = 2rs. show who earned more 1 or 3? and what was their point earning in the first year??
 
--- select sales.user_id,sales.product_id, order_placed,golduser_signup_date,price,round(price/2,0) as zomato_points from sales
--- join goldusers_signup on sales.user_id = goldusers_signup.user_id
--- join product on sales.product_id = product.product_id
--- where golduser_signup_date <= order_placed and order_placed <= date_add(golduser_signup_date,interval 1 year)
+select sales.user_id,sales.product_id, order_placed,golduser_signup_date,price,round(price/2,0) as zomato_points from sales
+join goldusers_signup on sales.user_id = goldusers_signup.user_id
+join product on sales.product_id = product.product_id
+where golduser_signup_date <= order_placed and order_placed <= date_add(golduser_signup_date,interval 1 year)
 
 -- rank all the transaction of the customers
 
--- select *,rank() over(partition by user_id order by order_placed) rnk from sales
+select *,rank() over(partition by user_id order by order_placed) rnk from sales
 
 -- rank all the transation for each customer if they are a gold member else print na
 
--- select *,rank() over(partition by user_id order by order_placed) as rnk,
--- case when user_id is null then 'NA'
--- else rank() over(partition by user_id order by order_placed)
--- end as rnk
--- from
--- (select sales.user_id,product_id,order_placed,golduser_signup_date,
--- case when golduser_signup_date is null then 'NA'
--- else rank() over(partition by user_id order by order_placed)
--- end as rnk
---  from sales
--- left join goldusers_signup on sales.user_id = goldusers_signup.user_id and order_placed >= golduser_signup_date order by golduser_signup_date desc) sales
+select *,rank() over(partition by user_id order by order_placed) as rnk,
+case when user_id is null then 'NA'
+else rank() over(partition by user_id order by order_placed)
+end as rnk
+from
+(select sales.user_id,product_id,order_placed,golduser_signup_date,
+case when golduser_signup_date is null then 'NA'
+else rank() over(partition by user_id order by order_placed)
+end as rnk
+ from sales
+left join goldusers_signup on sales.user_id = goldusers_signup.user_id and order_placed >= golduser_signup_date order by golduser_signup_date desc) sales
 
 
